@@ -1,0 +1,188 @@
+>> LOG BUILD ncam.mips >>
+
+
+==============================================
+   ASSIGNING PERMISSIONS
+==============================================
+
+
+ Permissions applied correctly
+
+
+==============================================
+   REMOVE OLD REMAINS
+==============================================
+
+
+ Cleaning performed correctly
+
+
+
+==============================================
+   START : BUILD
+==============================================
+
+
+ starting Compilation
+
++-------------------------------------------------------------------------------
+make --no-print-directory \
+	CROSS=/home/*/NCam/cross/mipsel-tuxbox-linux-gnu/bin/mipsel-tuxbox-linux-gnu- \
+	CONF_DIR=/var/tuxbox/config \
+	EXTRA_FLAGS="-mips1 -static-libgcc -EL -I. -s" \
+	 -j --jobserver-fds=3,4 -- target=mips ARCH=mips NCAM_BIN=ncam.mips
++-------------------------------------------------------------------------------
+| NCAm ver: 1.7 rev: r4_ target: mipsel-tuxbox-linux-gnu
+| Tools:
+|  CROSS    = /home/*/NCam/cross/mipsel-tuxbox-linux-gnu/bin/mipsel-tuxbox-linux-gnu-
+|  CC       = /home/*/NCam/cross/mipsel-tuxbox-linux-gnu/bin/mipsel-tuxbox-linux-gnu-gcc
+| Settings:
+|  CONF_DIR = /var/tuxbox/config
+|  CC_OPTS  = -Os -ggdb -pipe -ffunction-sections -fdata-sections -fwrapv -fomit-frame-pointer
+|  CC_WARN  = -W -Wall -Wshadow -Wno-shadow -Wredundant-decls -Wstrict-prototypes -Wold-style-definition
+|  CFLAGS   = -fexpensive-optimizations -mips1 -static-libgcc -EL -I. -s
+|  LDFLAGS  = -Wl,--gc-sections -mips1 -static-libgcc -EL -I. -s
+|  LIBS     = -lpthread -ldl
+|  UseFlags = 
+| Config:
+|  Addons   : WEBIF WEBIF_LIVELOG WEBIF_JQUERY HAVE_DVBAPI READ_SDT_CHARSETS IRDETO_GUESSING CS_ANTICASC WITH_LB CS_CACHEEX CW_CYCLE_CHECK WITH_EMU
+|  Protocols: CAMD35 CAMD35_TCP NEWCAMD CCCAM CCCSHARE RADEGAST SERIAL CONSTCW
+|  Readers  : NAGRA IRDETO CONAX CRYPTOWORKS SECA VIACCESS VIDEOGUARD DRE TONGFANG STREAMGUARD JET BULCRYPT GRIFFIN DGCRYPT
+|  CardRdrs : PHOENIX INTERNAL SC8IN1 MP35 SMARGO DB2COM STAPI STAPI5 STINGER DRECAS
+|  Compiler : mipsel-tuxbox-linux-gnu-gcc (crosstool-NG 1.19.0) 4.8.1
+|  Config   : build/mipsel-tuxbox-linux-gnu/config.mak
+|  Binary   : ncam.mips
++-------------------------------------------------------------------------------
+CC	cscrypt/bn_add.c
+CC	cscrypt/bn_ctx.c
+CC	cscrypt/bn_asm.c
+CC	cscrypt/aes.c
+CC	cscrypt/bn_div.c
+CC	cscrypt/bn_exp.c
+CC	cscrypt/bn_mul.c
+CC	cscrypt/bn_lib.c
+CC	cscrypt/bn_print.c
+CC	cscrypt/bn_shift.c
+CC	cscrypt/bn_sqr.c
+CC	cscrypt/bn_word.c
+CC	cscrypt/mem.c
+CC	cscrypt/jet_twofish.c
+CC	cscrypt/i_cbc.c
+CC	cscrypt/i_ecb.c
+CC	cscrypt/des.c
+CC	cscrypt/jet_dh.c
+CC	cscrypt/i_skey.c
+CC	cscrypt/md5.c
+CC	cscrypt/rc6.c
+CC	cscrypt/sha1.c
+CC	csctapi/atr.c
+CC	csctapi/icc_async.c
+CC	csctapi/io_serial.c
+CC	csctapi/protocol_t0.c
+CC	csctapi/protocol_t1.c
+CC	csctapi/ifd_db2com.c
+CC	csctapi/ifd_mp35.c
+CC	csctapi/ifd_phoenix.c
+CC	csctapi/ifd_drecas.c
+CC	csctapi/ifd_sc8in1.c
+CC	csctapi/ifd_sci.c
+CC	csctapi/ifd_stinger.c
+CC	csctapi/ifd_smargo.c
+CC	minilzo/minilzo.c
+CC	module-anticasc.c
+CC	module-cacheex.c
+CC	module-camd35-cacheex.c
+CC	module-camd35.c
+CC	module-cccam-cacheex.c
+CC	module-cccam.c
+CC	module-cccshare.c
+CC	module-constcw.c
+CC	module-emulator.c
+module-emulator.c: In function 'refresh_entitlements':
+module-emulator.c:100:2: warning: implicit declaration of function 'cs_clear_entitlement' [-Wimplicit-function-declaration]
+  cs_clear_entitlement(rdr);
+  ^
+CC	module-emulator-nemu.c
+CC	module-emulator-stream.c
+CC	ffdecsa/ffdecsa.c
+CC	module-csp.c
+CC	module-cw-cycle-check.c
+CC	module-dvbapi-chancache.c
+CC	module-dvbapi.c
+CC	module-ird-guess.c
+CC	module-newcamd.c
+CC	module-newcamd-des.c
+CC	module-radegast.c
+CC	module-serial.c
+CC	module-stat.c
+CC	module-webif-lib.c
+CC	module-webif-tpl.c
+CC	module-webif.c
+CC	webif/pages.c
+CC	reader-common.c
+CC	reader-bulcrypt.c
+CC	reader-conax.c
+CC	reader-cryptoworks.c
+CC	reader-dgcrypt.c
+CC	reader-dre.c
+CC	reader-dre-cas.c
+CC	reader-dre-common.c
+CC	reader-griffin.c
+CC	reader-dre-st20.c
+CC	reader-irdeto.c
+CC	reader-nagra.c
+CC	reader-seca.c
+CC	reader-tongfang.c
+CC	reader-streamguard.c
+CC	reader-jet.c
+CC	reader-viaccess.c
+CC	reader-videoguard-common.c
+CC	reader-videoguard1.c
+CC	reader-videoguard12.c
+CC	reader-videoguard2.c
+CC	ncam-aes.c
+CC	ncam-array.c
+CC	ncam-hashtable.c
+CC	ncam-cache.c
+CC	ncam-chk.c
+CC	ncam-client.c
+CC	ncam-conf.c
+CC	ncam-conf-chk.c
+CC	ncam-conf-mk.c
+CC	ncam-config-account.c
+CC	ncam-config-global.c
+CC	ncam-config-reader.c
+CC	ncam-config.c
+CC	ncam-ecm.c
+CC	ncam-emm.c
+CC	ncam-emm-cache.c
+CC	ncam-failban.c
+CC	ncam-files.c
+CC	ncam-garbage.c
+CC	ncam-lock.c
+CC	ncam-log.c
+CC	ncam-log-reader.c
+CC	ncam-net.c
+CC	ncam-llist.c
+CC	ncam-reader.c
+CC	ncam-simples.c
+CC	ncam-string.c
+CC	ncam-time.c
+CC	ncam-work.c
+CONF	build/mipsel-tuxbox-linux-gnu/config.c
+CC	ncam.c
+LINK	ncam.mips.debug
+STRIP	ncam.mips
+
+==============================================
+   END   : BUILD
+==============================================
+
+
+
+Build Ncam Started  : 03/04/18 02:50:59
+Build Ncam Finished : 03/04/18 02:51:48
+Total compile time is 49 seconds
+
+./Distribution/ncam.mips
+
