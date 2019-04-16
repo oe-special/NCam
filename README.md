@@ -6,6 +6,7 @@ License
 =======
 
 NCam: Open Source CAM
+Copyright (C) 2015-2019 Update and patch by RAED (Fairbird).
 Copyright (C) 2012-2018 developed by Javilonas.
 
 NCam is based on the Oscam 1.20: http://www.streamboard.tv/svn/oscam/trunk/
@@ -43,7 +44,7 @@ The NCAM building (compilation) process is fairly straight forward.
 1 - Clone NCam git in /home/$username
 =
 
-git clone git://github.com/javilonas/NCam.git -b master
+git clone git://github.com/fairbird/NCam.git -b master
 
 2 - Switch to folder NCam (/home/$username/NCam)
 =
@@ -75,12 +76,6 @@ If you want to compile the system witch more or less options:
 make menuconfig
 
 - When finished, save the changes and compile NCAM with the tool provided.
-
-
-
-This information will be expanded soon.
-
-For questions, contact in the support forum: https://www.lonasdigital.com
 
 
 
