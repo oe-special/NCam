@@ -6,7 +6,6 @@
 
 #include "module-emulator-nemu.h"
 #include "ncam-string.h"
-#if defined(DVBCISSA_BISS2) 
 #include "module-emulator-biss.h"
 #include "ncam-aes.h"
 #include <openssl/evp.h>
@@ -20,7 +19,6 @@ static const uint8_t dvb_cissa_iv[16] =
 	0x44, 0x56, 0x42, 0x54, 0x4D, 0x43, 0x50, 0x54,
 	0x41, 0x45, 0x53, 0x43, 0x49, 0x53, 0x53, 0x41
 };
-#endif
 
 static void unify_orbitals(uint32_t *namespace)
 {
@@ -308,11 +306,7 @@ static int8_t is_valid_namespace(uint32_t namespace)
 	return 0;
 }
 
-#if defined(DVBCISSA_BISS2)
 static int8_t get_sw(uint32_t provider, uint8_t *sw, uint8_t sw_length, int8_t dateCoded, int8_t printMsg)
-#else
-static int8_t get_key(uint32_t provider, uint8_t *key, int8_t dateCoded, int8_t printMsg)
-#endif
 {
 	// If date-coded keys are enabled in the webif, this function evaluates the expiration date
 	// of the found keys. Expired keys are not sent to the calling function. If date-coded keys
@@ -324,11 +318,7 @@ static int8_t get_key(uint32_t provider, uint8_t *key, int8_t dateCoded, int8_t 
 	// printMsg: 2 => Always print message, regardless if key is found or not
 
 	char keyExpDate[9] = "00000000";
-#if defined(DVBCISSA_BISS2)
 	if (emu_find_key('F', provider, 0, keyExpDate, sw, sw_length, 0, 0, 0, NULL)) // Key found
-#else
-	if (emu_find_key('F', provider, 0, keyExpDate, key, 8, 0, 0, 0, NULL)) // Key found
-#endif
 	{
 		if (dateCoded) // Date-coded keys are enabled, evaluate expiration date
 		{
@@ -342,12 +332,7 @@ static int8_t get_key(uint32_t provider, uint8_t *key, int8_t dateCoded, int8_t 
 			}
 			else // Key expired
 			{
-#if defined(DVBCISSA_BISS2)
 				sw = NULL; // Make sure we don't send any expired key
-#else
-				key = NULL; // Make sure we don't send any expired key
-
-#endif
 				if (printMsg == 2) cs_log("Key expired: F %08X %s", provider, keyExpDate);
 				return 0;
 			}
@@ -364,13 +349,9 @@ static int8_t get_key(uint32_t provider, uint8_t *key, int8_t dateCoded, int8_t 
 		return 0;
 	}
 }
-#if defined(DVBCISSA_BISS2)
+
 static int8_t biss_mode1_ecm(struct s_reader *rdr, uint16_t caid, const uint8_t *ecm, uint8_t *dw,
 								uint16_t srvid, uint16_t ecmpid, EXTENDED_CW *cw_ex)
-#else
-static int8_t biss1_mode1_ecm(struct s_reader *rdr, uint16_t caid, const uint8_t *ecm,
-								uint8_t *dw, uint16_t srvid, uint16_t ecmpid)
-#endif
 {
 	// Ncam's fake ecm consists of [sid] [pmtpid] [pid1] [pid2] ... [pidx] [tsid] [onid] [namespace]
 	//
@@ -405,7 +386,6 @@ static int8_t biss1_mode1_ecm(struct s_reader *rdr, uint16_t caid, const uint8_t
 
 	uint32_t i, ens = 0, hash = 0;
 	uint16_t pid = 0, ecmLen = get_ecm_len(ecm);
-#if defined(DVBCISSA_BISS2)
 	uint8_t *sw, sw_length, ecmCopy[ecmLen];
 	char tmpBuffer1[33], tmpBuffer2[90] = "0", tmpBuffer3[90] = "0";
 
@@ -424,10 +404,7 @@ static int8_t biss1_mode1_ecm(struct s_reader *rdr, uint16_t caid, const uint8_t
 		sw = cw_ex->session_word;
 		sw_length = 16;
 	}
-#else
-	uint8_t ecmCopy[ecmLen];
-	char tmpBuffer1[17], tmpBuffer2[90] = "0", tmpBuffer3[90] = "0";
-#endif
+
 	// First try using the unique namespace hash (enigma only)
 	if (ecmLen >= 13) // ecmLen >= 13, allow patching the ecmLen for r749 ecms
 	{
@@ -453,19 +430,13 @@ static int8_t biss1_mode1_ecm(struct s_reader *rdr, uint16_t caid, const uint8_t
 					i2b_buf(2, srvid, ecmCopy + ecmLen - 10); // Put [srvid] right before [tsid] [onid] [namespace] sequence
 					hash = crc32(caid, ecmCopy + ecmLen - 10, 10);
 				}
-#if defined(DVBCISSA_BISS2)
+
 				if (get_sw(hash, sw, sw_length, rdr->emu_datecodedenabled, i == 0 ? 2 : 1)) // Do not print "key not found" for frequency off by 1, 2
 				{
 					memcpy(sw + sw_length, sw, sw_length);
 					return 0;
 				}
-#else
-				if (get_key(hash, dw, rdr->emu_datecodedenabled, i == 0 ? 2 : 1)) // Do not print "key not found" for frequency off by 1, 2
-				{
-					memcpy(dw + 8, dw, 8);
-					return 0;
-				}
-#endif
+
 				if (i == 0) // No key found matching our hash: create example SoftCam.Key BISS line for the live log
 				{
 					annotate(tmpBuffer2, sizeof(tmpBuffer2), ecmCopy, ecmLen, hash, 1, rdr->emu_datecodedenabled);
@@ -495,19 +466,12 @@ static int8_t biss1_mode1_ecm(struct s_reader *rdr, uint16_t caid, const uint8_t
 		{
 			memcpy(ecmCopy, ecm, ecmLen - 8); // Make a new ecmCopy from the original ecm as the old ecmCopy may be altered in namespace hash (skip [tsid] [onid] [namespace])
 			hash = crc32(caid, ecmCopy + 3, ecmLen - 3 - 8); // ecmCopy doesn't have [tsid] [onid] [namespace] part
-#if defined(DVBCISSA_BISS2)
+
 			if (get_sw(hash, sw, sw_length, rdr->emu_datecodedenabled, 2)) // Key found
 			{
 				memcpy(sw + sw_length, sw, sw_length);
 				return 0;
 			}
-#else
-			if (get_key(hash, dw, rdr->emu_datecodedenabled, 2)) // Key found
-			{
-				memcpy(dw + 8, dw, 8);
-				return 0;
-			}
-#endif
 
 			// No key found matching our hash: create example SoftCam.Key BISS line for the live log
 			annotate(tmpBuffer3, sizeof(tmpBuffer3), ecmCopy, ecmLen, hash, 0, rdr->emu_datecodedenabled);
@@ -520,19 +484,12 @@ static int8_t biss1_mode1_ecm(struct s_reader *rdr, uint16_t caid, const uint8_t
 		ens = b2i(4, ecmCopy + ecmLen - 4); // Namespace will be last 4 bytes
 
 		// We have an r752+ style ecm with stripped namespace, thus a valid [tsid][onid] combo to use as provider
-#if defined(DVBCISSA_BISS2)
 		if ((ens & 0xE000FFFF) == 0xA0000000 && get_sw(b2i(4, ecm + ecmLen - 8), sw, sw_length, 0, 2))
 		{
 			memcpy(sw + sw_length, sw, sw_length);
 			return 0;
 		}
-#else
-		if ((ens & 0xE000FFFF) == 0xA0000000 && get_key(b2i(4, ecm + ecmLen - 8), dw, 0, 2))
-		{
-			memcpy(dw + 8, dw, 8);
-			return 0;
-		}
-#endif
+
 		if ((ens & 0xE0000000) == 0xA0000000) // Strip [tsid] [onid] [namespace] on r752+ ecms
 		{
 			ecmLen -= 8;
@@ -542,19 +499,11 @@ static int8_t biss1_mode1_ecm(struct s_reader *rdr, uint16_t caid, const uint8_t
 	// Try using ecmpid if it seems to be faulty (should be 0x1FFF always for BISS)
 	if (ecmpid != 0x1FFF && ecmpid != 0)
 	{
-#if defined(DVBCISSA_BISS2)
 		if (get_sw((srvid << 16) | ecmpid, sw, sw_length, 0, 2))
 		{
 			memcpy(sw + sw_length, sw, sw_length);
 			return 0;
 		}
-#else
-		if (get_key((srvid << 16) | ecmpid, dw, 0, 2))
-		{
-			memcpy(dw + 8, dw, 8);
-			return 0;
-		}
-#endif
 	}
 
 	// Try to get the pid from ncam's fake ecm (only search [pid1] [pid2] ... [pidx] to be compatible with emu r748-)
@@ -565,26 +514,17 @@ static int8_t biss1_mode1_ecm(struct s_reader *rdr, uint16_t caid, const uint8_t
 		for (i = ecmLen - 2; i >= 5; i -= 2)
 		{
 			pid = b2i(2, ecm + i);
-#if defined(DVBCISSA_BISS2)
 			if (get_sw((srvid << 16) | pid, sw, sw_length, 0, 2))
 			{
 				memcpy(sw + sw_length, sw, sw_length);
 				return 0;
 			}
-#else
-			if (get_key((srvid << 16) | pid, dw, 0, 2))
-			{
-				memcpy(dw + 8, dw, 8);
-				return 0;
-			}
-#endif
 		}
 	}
 
 	// Try using the standard BISS ecm pid
 	if (ecmpid == 0x1FFF || ecmpid == 0)
 	{
-#if defined(DVBCISSA_BISS2)
 		if (get_sw((srvid << 16) | 0x1FFF, sw, sw_length, 0, 2))
 		{
 			memcpy(sw + sw_length, sw, sw_length);
@@ -600,23 +540,7 @@ static int8_t biss1_mode1_ecm(struct s_reader *rdr, uint16_t caid, const uint8_t
 		cs_log("No specific match found. Using 'All Feeds' key: %s", tmpBuffer1);
 		return 0;
 	}
-#else
-		if (get_key((srvid << 16) | 0x1FFF, dw, 0, 2))
-		{
-			memcpy(dw + 8, dw, 8);
-			return 0;
-		}
-	}
 
-	// Default BISS key for events with many feeds sharing same key
-	if (ecmpid != 0 && get_key(0xA11FEED5, dw, rdr->emu_datecodedenabled, 2)) // Limit to local ecms, block netwotk ecms
-	{
-		memcpy(dw + 8, dw, 8);
-		cs_hexdump(0, dw, 8, tmpBuffer1, sizeof(tmpBuffer1));
-		cs_log("No specific match found. Using 'All Feeds' key: %s", tmpBuffer1);
-		return 0;
-	}
-#endif
 	// Print example key lines for available hash search methods, if no key is found
 	if (strncmp(tmpBuffer2, "0", 2)) cs_log("Example key based on namespace hash: %s", tmpBuffer2);
 	if (strncmp(tmpBuffer3, "0", 2)) cs_log("Example key based on universal hash: %s", tmpBuffer3);
@@ -627,7 +551,6 @@ static int8_t biss1_mode1_ecm(struct s_reader *rdr, uint16_t caid, const uint8_t
 	return 2;
 }
 
-#if defined(DVBCISSA_BISS2)
 static inline int8_t get_ecm_key(uint16_t onid, uint16_t esid, uint8_t parity, uint8_t *key)
 {
 	return emu_find_key('G', onid << 16 | esid, 0, parity == 0 ? "00" : "01", key, 16, 1, 0, 0, NULL);
@@ -976,27 +899,5 @@ uint16_t biss_read_pem(struct s_reader *rdr, uint8_t max_keys)
 
 	return count;
 }
-#else
-int8_t biss_ecm(struct s_reader *rdr, uint16_t caid, const uint8_t *ecm, uint8_t *dw, uint16_t srvid, uint16_t ecmpid)
-{
-	switch (caid)
-	{
-		case 0x2600:
-			return biss1_mode1_ecm(rdr, caid, ecm, dw, srvid, ecmpid);
-
-		case 0x2602:
-			cs_log("Unsupported Biss 2 Mode 1/E ecm (caid %04X) - Please report!", caid);
-			return EMU_NOT_SUPPORTED;
-
-		case 0x2610:
-			cs_log("Unsupported Biss 2 Mode CA ecm (caid %04X) - Please report!", caid);
-			return EMU_NOT_SUPPORTED;
-
-		default:
-			cs_log("Unknown Biss caid %04X - Please report!", caid);
-			return EMU_NOT_SUPPORTED;
-	}
-}
-#endif // DVBCISSA_BISS2
 
 #endif // WITH_EMU
