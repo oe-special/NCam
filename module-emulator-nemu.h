@@ -3,6 +3,9 @@
 
 #ifdef WITH_EMU
 
+// Version info
+#define EMU_VERSION 795
+
 #define EMU_MAX_CHAR_KEYNAME 12
 #define EMU_KEY_FILENAME "SoftCam.Key"
 #define EMU_KEY_FILENAME_MAX_LEN 31
@@ -71,10 +74,7 @@ extern pthread_mutex_t emu_key_data_mutex;
 void emu_set_keyfile_path(const char *path);
 void emu_clear_keydata(void);
 uint8_t emu_read_keyfile(struct s_reader *rdr, const char *path);
-
-#if defined(WITH_SOFTCAM) && !defined(__APPLE__) && !defined(__ANDROID__)
 void emu_read_keymemory(struct s_reader *rdr);
-#endif
 
 extern uint16_t get_ecm_len(const uint8_t *ecm);
 int8_t is_valid_dcw(uint8_t *dw);
