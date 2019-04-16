@@ -149,13 +149,9 @@ KeyDataContainer *emu_get_key_container(char identifier)
 		case 'I':
 			return &IrdetoKeys;
 		case 'F':
-#if defined(DVBCISSA_BISS2)
 			return &BissSWs;
 		case 'G':
 			return &Biss2Keys;
-#else
-			return &BissKeys;
-#endif
 		case 'P':
 			return &PowervuKeys;
 		case 'T':
@@ -671,38 +667,24 @@ void emu_clear_keydata(void)
 	total += ViKeys.keyCount;
 	total += NagraKeys.keyCount;
 	total += IrdetoKeys.keyCount;
-#if defined(DVBCISSA_BISS2)
 	total += BissSWs.keyCount;
 	total += Biss2Keys.keyCount;
-#else
-	total += BissKeys.keyCount;
-#endif
 	total += PowervuKeys.keyCount;
 	total += TandbergKeys.keyCount;
 	total += StreamKeys.keyCount;
 
 	if (total != 0)
-	{
-#if defined(DVBCISSA_BISS2)
-		cs_log("Freeing keys in memory: W:%d V:%d N:%d I:%d F:%d G:%d P:%d T:%d A:%d",
+	{		cs_log("Freeing keys in memory: W:%d V:%d N:%d I:%d F:%d G:%d P:%d T:%d A:%d",
 				CwKeys.keyCount, ViKeys.keyCount, NagraKeys.keyCount, IrdetoKeys.keyCount,
 				BissSWs.keyCount, Biss2Keys.keyCount, PowervuKeys.keyCount, TandbergKeys.keyCount,
 				StreamKeys.keyCount);
-#else
-		cs_log("Freeing keys in memory: W:%d V:%d N:%d I:%d F:%d P:%d T:%d A:%d",
-				CwKeys.keyCount, ViKeys.keyCount, NagraKeys.keyCount, IrdetoKeys.keyCount,
-				BissKeys.keyCount, PowervuKeys.keyCount, TandbergKeys.keyCount,
-				StreamKeys.keyCount);
-#endif
 
 		delete_keys_in_container('W');
 		delete_keys_in_container('V');
 		delete_keys_in_container('N');
 		delete_keys_in_container('I');
 		delete_keys_in_container('F');
-#if defined(DVBCISSA_BISS2)
 		delete_keys_in_container('G');
-#endif
 		delete_keys_in_container('P');
 		delete_keys_in_container('T');
 		delete_keys_in_container('A');
@@ -951,11 +933,7 @@ int8_t emu_process_ecm(struct s_reader *rdr, int16_t ecmDataLen, uint16_t caid, 
 	else if (caid_is_powervu(caid))     result = powervu_ecm(ecmCopy, dw, srvid, NULL, cw_ex);
 	else if (caid_is_director(caid))    result = director_ecm(ecmCopy, dw);
 	else if (caid_is_nagra(caid))       result = nagra2_ecm(ecmCopy, dw);
-#if defined(DVBCISSA_BISS2)
 	else if (caid_is_biss(caid))        result = biss_ecm(rdr, caid, ecm, dw, srvid, ecmpid, cw_ex);
-#else
-	else if (caid_is_biss(caid))        result = biss_ecm(rdr, caid, ecm, dw, srvid, ecmpid);
-#endif
 
 	if (result != 0)
 	{
@@ -1000,9 +978,7 @@ int8_t emu_process_emm(struct s_reader *rdr, uint16_t caid, const uint8_t *emm, 
 	else if (caid_is_irdeto(caid))       result = irdeto2_emm(caid, emmCopy, keysAdded);
 	else if (caid_is_powervu(caid))      result = powervu_emm(emmCopy, keysAdded);
 	else if (caid_is_director(caid))     result = director_emm(emmCopy, keysAdded);
-#if defined(DVBCISSA_BISS2)
 	else if (caid_is_biss_dynamic(caid)) result = biss_emm(rdr, emmCopy, keysAdded);
-#endif
 
 	if (result != 0)
 	{
