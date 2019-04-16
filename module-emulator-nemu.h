@@ -59,12 +59,8 @@ extern KeyDataContainer CwKeys;
 extern KeyDataContainer ViKeys;
 extern KeyDataContainer NagraKeys;
 extern KeyDataContainer IrdetoKeys;
-#if defined(DVBCISSA_BISS2)
 extern KeyDataContainer BissSWs;      // 'F' identifier - BISS1 and BISS2 mode 1/E session words
 extern KeyDataContainer Biss2Keys;    // 'G' identifier - BISS2 mode CA session keys (ECM keys)
-#else
-extern KeyDataContainer BissKeys;
-#endif
 extern KeyDataContainer PowervuKeys;
 extern KeyDataContainer TandbergKeys;
 extern KeyDataContainer StreamKeys;
