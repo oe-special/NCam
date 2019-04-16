@@ -6,9 +6,7 @@
 
 #include "module-emulator-nemu.h"
 #include "module-emulator-streamserver.h"
-#if defined(DVBCISSA_BISS2)
 #include "module-emulator-biss.h"
-#endif
 #include "module-emulator-irdeto.h"
 #include "module-emulator-powervu.h"
 #include "ncam-conf-chk.h"
@@ -111,12 +109,9 @@ static void emu_add_entitlement(struct s_reader *rdr, uint16_t caid, uint32_t pr
 static void refresh_entitlements(struct s_reader *rdr)
 {
 	uint32_t i;
-#if defined(DVBCISSA_BISS2)
 	uint16_t caid;
 	LL_ITER itr;
 	biss2_rsa_key_t *item;
-#endif
-	KeyData *tmpKeyData;
 
 	cs_clear_entitlement(rdr);
 
@@ -168,7 +163,7 @@ static void refresh_entitlements(struct s_reader *rdr)
 		emu_add_entitlement(rdr, 0x1801, NagraKeys.EmuKeys[i].provider, NagraKeys.EmuKeys[i].key,
 							NagraKeys.EmuKeys[i].keyName, NagraKeys.EmuKeys[i].keyLength, 0);
 	}
-#if defined(DVBCISSA_BISS2)
+
 	// Session words for BISS1 mode 1/E (caid 2600) and BISS2 mode 1/E (caid 2602)
 	for (i = 0; i < BissSWs.keyCount; i++)
 	{
@@ -190,13 +185,6 @@ static void refresh_entitlements(struct s_reader *rdr)
 	{
 		emu_add_entitlement(rdr, 0x2610, 0, item->ekid, "RSAPRI", 8, 0);
 	}
-#else
-	for (i = 0; i < BissKeys.keyCount; i++)
-	{
-		emu_add_entitlement(rdr, 0x2600, BissKeys.EmuKeys[i].provider, BissKeys.EmuKeys[i].key,
-							BissKeys.EmuKeys[i].keyName, BissKeys.EmuKeys[i].keyLength, 0);
-	}
-#endif
 }
 
 static int32_t emu_do_ecm(struct s_reader *rdr, const ECM_REQUEST *er, struct s_ecm_answer *ea)
@@ -243,10 +231,9 @@ static int32_t emu_card_info(struct s_reader *rdr)
 
 	// Delete keys from Emu's memory
 	emu_clear_keydata();
-#if defined(DVBCISSA_BISS2)
+
 	// Delete BISS2 mode CA RSA keys
 	ll_destroy_data(&rdr->ll_biss2_rsa_keys);
-#endif
 
 	// Read keys built in the NCam binary
 #if defined(WITH_SOFTCAM) && !defined(__APPLE__) && !defined(__ANDROID__)
@@ -263,22 +250,13 @@ static int32_t emu_card_info(struct s_reader *rdr)
 			emu_set_keyfile_path("/var/keys/");
 		}
 	}
-#if defined(DVBCISSA_BISS2)
+
 	// Read BISS2 mode CA RSA keys from PEM files
 	biss_read_pem(rdr, BISS2_MAX_RSA_KEYS);
-#endif
-
-#if defined(DVBCISSA_BISS2)
 	cs_log("Total keys in memory: W:%d V:%d N:%d I:%d F:%d G:%d P:%d T:%d A:%d",
 			CwKeys.keyCount, ViKeys.keyCount, NagraKeys.keyCount, IrdetoKeys.keyCount,
 			BissSWs.keyCount, Biss2Keys.keyCount, PowervuKeys.keyCount, TandbergKeys.keyCount,
 			StreamKeys.keyCount);
-#else
-	cs_log("Total keys in memory: W:%d V:%d N:%d I:%d F:%d P:%d T:%d A:%d",
-			CwKeys.keyCount, ViKeys.keyCount, NagraKeys.keyCount, IrdetoKeys.keyCount,
-			BissKeys.keyCount, PowervuKeys.keyCount, TandbergKeys.keyCount,
-			StreamKeys.keyCount);
-#endif
 
 	// Inform NCam about all available keys.
 	// This is used for listing the "entitlements" in the webif's reader page.
