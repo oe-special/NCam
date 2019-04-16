@@ -42,10 +42,8 @@ LIB_DL := -ldl
 
 LIB_RT :=
 ifeq ($(uname_S),Linux)
-	ifndef ANDROID_NDK
-		ifeq "$(shell ./config.sh --enabled CLOCKFIX)" "Y"
-			LIB_RT := -lrt
-		endif
+	ifeq "$(shell ./config.sh --enabled CLOCKFIX)" "Y"
+		LIB_RT := -lrt
 	endif
 endif
 ifeq ($(uname_S),FreeBSD)
@@ -56,18 +54,14 @@ override STD_LIBS := -lm $(LIB_PTHREAD) $(LIB_DL) $(LIB_RT)
 override STD_DEFS := -D'CS_SVN_VERSION="$(SVN_REV)"'
 override STD_DEFS += -D'CS_CONFDIR="$(CONF_DIR)"'
 
-MODFLAGS_OPTS = -fwrapv -fomit-frame-pointer
-
 # Compiler warnings
-CC_WARN = -W -Wall -Wshadow -Wno-shadow -Wredundant-decls -Wstrict-prototypes -Wold-style-definition
+CC_WARN = -W -Wall -Wshadow -Wredundant-decls -Wstrict-prototypes -Wold-style-definition
 
 # Compiler optimizations
-CC_OPTS = -Os -ggdb -pipe -ffunction-sections -fdata-sections $(MODFLAGS_OPTS)
+CC_OPTS = -O2 -ggdb -pipe -ffunction-sections -fdata-sections
 
 CC = $(CROSS_DIR)$(CROSS)gcc
 STRIP = $(CROSS_DIR)$(CROSS)strip
-LD = $(CROSS_DIR)$(CROSS)ld
-OBJCOPY = $(CROSS_DIR)$(CROSS)objcopy
 
 LDFLAGS = -Wl,--gc-sections
 
@@ -297,7 +291,6 @@ SRC-$(CONFIG_WITH_EMU) += module-emulator-powervu.c
 SRC-$(CONFIG_WITH_EMU) += module-emulator-viaccess.c
 SRC-$(CONFIG_WITH_EMU) += module-emulator-videoguard.c
 SRC-$(CONFIG_WITH_EMU) += ffdecsa/ffdecsa.c
-SRC-$(CONFIG_WITH_EMU) += module-emulator.c
 ifeq "$(CONFIG_WITH_EMU)" "y"
 ifeq "$(CONFIG_WITH_SOFTCAM)" "y"
 UNAME := $(shell uname -s)
@@ -306,9 +299,6 @@ ifndef ANDROID_NDK
 ifndef ANDROID_STANDALONE_TOOLCHAIN
 TOUCH_SK := $(shell touch SoftCam.Key)
 override LDFLAGS += -Wl,--format=binary -Wl,SoftCam.Key -Wl,--format=default
-#$(shell $(LD) -r -o "SoftCam.Key.o" -z noexecstack --format=binary "SoftCam.Key")
-#$(shell $(OBJCOPY) --rename-section .data=.rodata,alloc,load,readonly,data,contents "SoftCam.Key.o")
-#EXTRA_LIBS += SoftCam.Key.o
 endif
 endif
 endif
@@ -838,4 +828,3 @@ debug: all
 
 -include Makefile.extra
 -include Makefile.local
-
