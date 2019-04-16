@@ -1,5 +1,5 @@
 /*
- * NCAm WebIf pages generator
+ * NCam WebIf pages generator
  * Copyright (C) 2013-2015 Unix Solutions Ltd.
  *
  * Authors: Georgi Chorbadzhiyski (gf@unixsol.org)
@@ -408,7 +408,6 @@ int main(void)
 	fprintf(output_file, "\n");
 	fprintf(output_file, "#include \"pages.h\"\n");
 	fprintf(output_file, "\n");
-	fprintf(output_file, "#endif\n");
 
 #ifdef USE_COMPRESSION
 	// Calculate positions at which the values would be storred
