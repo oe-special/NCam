@@ -110,6 +110,7 @@ static void refresh_entitlements(struct s_reader *rdr)
 {
 	uint32_t i;
 	uint16_t caid;
+	KeyData *tmpKeyData;
 	LL_ITER itr;
 	biss2_rsa_key_t *item;
 
