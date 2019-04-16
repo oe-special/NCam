@@ -4293,7 +4293,7 @@ static char *send_ncam_user_config(struct templatevars *vars, struct uriparams *
 			}
 
 			lastresponsetm = latestclient->cwlastresptime;
-			if(latestclient->ip) {
+			if(latestclient != NULL) {
 				connected_users += 1;
 				tpl_addVar(vars, TPLADD, "CLIENTIP", cs_inet_ntoa(latestclient->ip));
 				if(isactive > 0 || conn > 0)
