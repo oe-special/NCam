@@ -130,12 +130,8 @@ KeyDataContainer CwKeys = { NULL, 0, 0 };
 KeyDataContainer ViKeys = { NULL, 0, 0 };
 KeyDataContainer NagraKeys = { NULL, 0, 0 };
 KeyDataContainer IrdetoKeys = { NULL, 0, 0 };
-#if defined(DVBCISSA_BISS2)
 KeyDataContainer BissSWs = { NULL, 0, 0 };
 KeyDataContainer Biss2Keys = { NULL, 0, 0 };
-#else
-KeyDataContainer BissKeys = { NULL, 0, 0 };
-#endif
 KeyDataContainer PowervuKeys = { NULL, 0, 0 };
 KeyDataContainer TandbergKeys = { NULL, 0, 0 };
 KeyDataContainer StreamKeys = { NULL, 0, 0 };
