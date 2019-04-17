@@ -7,7 +7,9 @@ License
 
 NCam: Open Source CAM
 Copyright (C) 2015-2019 Update and patch by RAED (Fairbird).
+
 Copyright (C) 2012-2018 developed by Javilonas.
+https://github.com/javilonas/NCam
 
 NCam is based on the Oscam 1.20: http://www.streamboard.tv/svn/oscam/trunk/
 
