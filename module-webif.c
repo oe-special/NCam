@@ -186,9 +186,12 @@ static void set_status_info(struct templatevars *vars, struct pstat stats){
 	double sum_cpu = stats.cpu_usage_sys + stats.cpu_usage_user;
 	set_status_info_var(vars, "NCAM_CPU_SUM", stats.check_available & (1 << 11), "%.2f %%"  , sum_cpu);
 
-	if (stats.check_available & (1 << 12)) {
-		tpl_addVar(vars, TPLADD, "NCAM_REFRESH" , "N/A");
-	} else {
+	if (stats.check_available & (1 << 12))
+	{
+		tpl_addVar(vars, TPLADD, "OSCAM_REFRESH" , "N/A");
+	}
+	else
+	{
 		tpl_printf(vars, TPLADD, "NCAM_REFRESH" , "%02"PRId64":%02"PRId64":%02"PRId64"h",
 			stats.gone_refresh / 3600,
 			(stats.gone_refresh / 60) % 60,
@@ -240,7 +243,6 @@ static void cacheex_clear_all_stats(void)
 		cacheex_clear_client_stats(cl);
 		ll_clear_data(cl->ll_cacheex_stats);
 	}
-
 	cacheex_clear_client_stats(first_client);
 }
 #endif
@@ -473,7 +475,6 @@ static void refresh_ncam(enum refreshtypes refreshtype)
 				cl->ac_limit   = (account->ac_users * 100 + 80) * cfg.ac_stime;
 			}
 		}
-
 		break;
 #endif
 	default:
@@ -679,14 +680,14 @@ static char *send_ncam_config_global(struct templatevars *vars, struct uriparams
 	tpl_printf(vars, TPLADD, "SLEEP", "%d", cfg.tosleep);
 	tpl_addVar(vars, TPLADD, "UNLOCKPARENTALCHECKED", (cfg.ulparent == 1) ? "checked" : "");
 
-    if(cfg.reload_useraccounts) { tpl_addVar(vars, TPLADD, "RELOADUSERACCOUNTSCHECKED", "checked"); }
-    if(cfg.reload_readers)      { tpl_addVar(vars, TPLADD, "RELOADREADERSCHECKED", "checked"); }
-    if(cfg.reload_provid)       { tpl_addVar(vars, TPLADD, "RELOADPROVIDCHECKED", "checked"); }
-    if(cfg.reload_services_ids) { tpl_addVar(vars, TPLADD, "RELOADSERVICESIDSCHECKED", "checked"); }
-    if(cfg.reload_tier_ids)     { tpl_addVar(vars, TPLADD, "RELOADTIERUDSCHECKED", "checked"); }
-    if(cfg.reload_fakecws)      { tpl_addVar(vars, TPLADD, "RELOADFAKECWSCHECKED", "checked"); }
-    if(cfg.reload_ac_stat)      { tpl_addVar(vars, TPLADD, "RELOADACSTATCHECKED", "checked"); }
-    if(cfg.reload_log)          { tpl_addVar(vars, TPLADD, "RELOADLOGCHECKED", "checked"); }
+	if(cfg.reload_useraccounts) { tpl_addVar(vars, TPLADD, "RELOADUSERACCOUNTSCHECKED", "checked"); }
+	if(cfg.reload_readers)      { tpl_addVar(vars, TPLADD, "RELOADREADERSCHECKED", "checked"); }
+	if(cfg.reload_provid)       { tpl_addVar(vars, TPLADD, "RELOADPROVIDCHECKED", "checked"); }
+	if(cfg.reload_services_ids) { tpl_addVar(vars, TPLADD, "RELOADSERVICESIDSCHECKED", "checked"); }
+	if(cfg.reload_tier_ids)     { tpl_addVar(vars, TPLADD, "RELOADTIERUDSCHECKED", "checked"); }
+	if(cfg.reload_fakecws)      { tpl_addVar(vars, TPLADD, "RELOADFAKECWSCHECKED", "checked"); }
+	if(cfg.reload_ac_stat)      { tpl_addVar(vars, TPLADD, "RELOADACSTATCHECKED", "checked"); }
+	if(cfg.reload_log)          { tpl_addVar(vars, TPLADD, "RELOADLOGCHECKED", "checked"); }
 
 	if(cfg.block_same_ip)   { tpl_addVar(vars, TPLADD, "BLOCKSAMEIPCHECKED", "checked"); }
 	if(cfg.block_same_name) { tpl_addVar(vars, TPLADD, "BLOCKSAMENAMECHECKED", "checked"); }
@@ -1256,7 +1257,6 @@ static char *send_ncam_config_scam(struct templatevars *vars, struct uriparams *
 #endif
 
 #ifdef WITH_EMU
-#include "module-emulator-streamserver.h"
 
 static char *send_ncam_config_streamrelay(struct templatevars *vars, struct uriparams *params)
 {
@@ -1667,9 +1667,7 @@ static char *send_ncam_config_anticasc(struct templatevars *vars, struct uripara
 
 	webif_save_config("anticasc", vars, params);
 
-	if(cfg.ac_enabled > 0)
-		{ tpl_addVar(vars, TPLADD, "ANTCHECKED", "checked"); }
-
+	if(cfg.ac_enabled > 0) { tpl_addVar(vars, TPLADD, "CHECKED", "checked"); }
 	tpl_printf(vars, TPLADD, "NUMUSERS", "%d", cfg.ac_users);
 	tpl_printf(vars, TPLADD, "SAMPLETIME", "%d", cfg.ac_stime);
 	tpl_printf(vars, TPLADD, "SAMPLES", "%d", cfg.ac_samples);
@@ -1679,7 +1677,6 @@ static char *send_ncam_config_anticasc(struct templatevars *vars, struct uripara
 
 	if(cfg.ac_logfile)
 		{ tpl_addVar(vars, TPLADD, "ACLOGFILE", cfg.ac_logfile); }
-
 	tpl_printf(vars, TPLADD, "FAKEDELAY", "%d", cfg.ac_fakedelay);
 	tpl_printf(vars, TPLADD, "DENYSAMPLES", "%d", cfg.ac_denysamples);
 
@@ -1862,10 +1859,10 @@ static char *send_ncam_reader(struct templatevars *vars, struct uriparams *param
                     		}
 #ifdef MODULE_GBOX
 				else
-					{ 
-						restart_gbox_peer(rdr->label, 0, 0);
-						cs_log("gbox -> you must restart ncam so that setting becomes effective");
-					}
+				{ 
+					restart_gbox_peer(rdr->label, 0, 0);
+					cs_log("gbox -> you must restart ncam so that setting becomes effective");
+				}
 #endif
                 		cs_log("reader %s %s by WebIf", rdr->label, rdr->enable == 1 ? "enabled":"disabled");
 
@@ -1947,7 +1944,10 @@ static char *send_ncam_reader(struct templatevars *vars, struct uriparams *param
 			MD5((uint8_t *)rdr->label, strlen(rdr->label), md5tmp);
 			int z;
 			tpl_addVar(vars, TPLADD, "LABELMD5","id_");
-			for (z = 0; z < MD5_DIGEST_LENGTH; z++){
+			for (z = 0; z < MD5_DIGEST_LENGTH; z++)
+			{
+				tpl_printf(vars, TPLAPPEND, "LABELMD5", "%02x", md5tmp[z]);
+			}
 				tpl_printf(vars, TPLAPPEND, "LABELMD5", "%02x", md5tmp[z]);
 			}
 #ifdef MODULE_GBOX
@@ -1958,10 +1958,13 @@ static char *send_ncam_reader(struct templatevars *vars, struct uriparams *param
 			}
 #endif
 			tpl_addVar(vars, TPLADD, "READERNAMEENC", urlencode(vars, rdr->label));
-			if(!existing_insert){
+			if(!existing_insert)
+			{
 				tpl_printf(vars, TPLADD, "EXISTING_INS", "'%s'", urlencode(vars, rdr->label));
 				existing_insert++;
-			}else{
+			}
+			else
+			{
 				tpl_printf(vars, TPLAPPEND, "EXISTING_INS", ",'%s'", urlencode(vars, rdr->label));
 			}
 			tpl_addVar(vars, TPLADD, "CTYP", reader_get_type_desc(rdr));
@@ -1972,14 +1975,7 @@ static char *send_ncam_reader(struct templatevars *vars, struct uriparams *param
 			if(rdr->enable) { active_readers += 1; }
 			else { disabled_readers += 1; }
 
-			if(rdr->tcp_connected) {
-				connected_readers += 1;
-				tpl_addVar(vars, TPLADD, "READERIP", cs_inet_ntoa(rdr->client->ip));
-			}
-			else
-			{
-				tpl_addVar(vars, TPLADD, "READERIP", "offline");
-			}
+			if(rdr->tcp_connected) { connected_readers += 1; }
 
 			if(rdr->description)
 				tpl_printf(vars, TPLADD, "DESCRIPTION","%s(%s)",!apicall?"&#13;":"",xml_encode(vars, rdr->description));
@@ -1989,7 +1985,7 @@ static char *send_ncam_reader(struct templatevars *vars, struct uriparams *param
 			if(cfg.http_showpicons && !apicall)
 			{
 				tpl_addVar(vars, TPLADD, "READERBIT", tpl_getTpl(vars, picon_exists(xml_encode(vars, rdr->label)) ? "READERNAMEBIT" : "READERNOICON"));
-				tpl_addVar(vars, TPLADD, "CTYP", picon_exists(xml_encode(vars, reader_get_type_desc(rdr))) ? tpl_getTpl(vars, "READERCTYPBIT") : tpl_getTpl(vars, "READERCTYPNOICON"));
+				tpl_addVar(vars, TPLADD, "CTYP", picon_exists(xml_encode(vars, reader_get_type_desc(rdr, 0))) ? tpl_getTpl(vars, "READERCTYPBIT") : tpl_getTpl(vars, "READERCTYPNOICON"));
 			}
 			else
 				tpl_addVar(vars, TPLADD, "READERBIT", tpl_getTpl(vars, "READERLABEL"));
@@ -2344,7 +2340,7 @@ static char *send_ncam_reader_config(struct templatevars *vars, struct uriparams
 	free_mk_t(value);
 
 #ifdef WITH_LB
-	tpl_addVar(vars, TPLADD, "LBFORCEFALLBACK", (rdr->lb_force_fallback == 1) ? "checked" : "");
+		tpl_addVar(vars, TPLADD, "LBFORCEFALLBACK", (rdr->lb_force_fallback == 1) ? "checked" : "");
 #endif
 
 #ifdef CS_CACHEEX
@@ -3361,13 +3357,17 @@ static char *send_ncam_user_config_edit(struct templatevars *vars, struct uripar
 	else { cs_strncpy(user, getParam(params, "user"), sizeof(user)); }
 
 	account = NULL;
-	for(chk = cfg.account; chk != NULL; chk = chk->next) {
+	for(chk = cfg.account; chk != NULL; chk = chk->next)
+	{
 		if(strcmp(user, chk->usr) == 0)
 			{ account = chk; }
-		if(!existing_insert){
+		if(!existing_insert)
+		{
 			tpl_printf(vars, TPLADD, "EXISTING_INS", "'%s'", urlencode(vars, chk->usr));
 			existing_insert++;
-		}else{
+		}
+		else
+		{
 			tpl_printf(vars, TPLAPPEND, "EXISTING_INS", ",'%s'", urlencode(vars, chk->usr));
 		}
 	}
@@ -3792,11 +3792,14 @@ static void webif_add_client_proto(struct templatevars *vars, struct s_client *c
 			snprintf(picon_name, sizeof(picon_name) / sizeof(char) - 1, "%s_%s", (char *)proto, newcamd_get_client_name(cl->ncd_client_id));
 			if(picon_exists(picon_name))
 			{
-				if (!apicall) {
+				if (!apicall)
+				{
 					tpl_addVar(vars, TPLADD, "NCMDA", (char *)proto);
 					tpl_addVar(vars, TPLADD, "NCMDB", (char *)newcamd_get_client_name(cl->ncd_client_id));
 					tpl_addVar(vars, TPLADD, "CLIENTPROTO", tpl_getTpl(vars, "PROTONEWCAMDPIC"));
-				} else {
+				}
+				else
+				{
 					tpl_printf(vars, TPLADDONCE, "PROTOICON", "%s_%s",(char *)proto, (char *)newcamd_get_client_name(cl->ncd_client_id));
 				}
 			}
@@ -3853,13 +3856,16 @@ static void webif_add_client_proto(struct templatevars *vars, struct s_client *c
 						snprintf(picon_name, sizeof(picon_name) / sizeof(char) - 1, "%s_r_%d", (char *)proto, mcs_ver);
 						if(picon_exists(picon_name))
 						{
-							if (!apicall) {
+							if (!apicall)
+							{
 								tpl_addVar(vars, TPLADD, "CCA", (char *)proto);
 								tpl_addVar(vars, TPLADD, "CCB", "r");
 								tpl_printf(vars, TPLADD, "CCC", "%d", mcs_ver);
 								tpl_addVar(vars, TPLADD, "CCD", "");
 								tpl_addVar(vars, TPLADD, "CLIENTPROTO", tpl_getTpl(vars, "PROTOCCCAMPIC"));
-							} else {
+							}
+							else
+							{
 								tpl_printf(vars, TPLADDONCE, "PROTOICON", "%s_r_%d",(char *)proto, mcs_ver);
 							}
 						}
@@ -3878,13 +3884,16 @@ static void webif_add_client_proto(struct templatevars *vars, struct s_client *c
 							snprintf(picon_name, sizeof(picon_name) / sizeof(char) - 1, "%s_r_%d", (char *)proto, nbx_ver);
 							if(picon_exists(picon_name))
 							{
-								if (!apicall) {
+								if (!apicall)
+								{
 									tpl_addVar(vars, TPLADD, "CCA", (char *)proto);
 									tpl_addVar(vars, TPLADD, "CCB", "r");
 									tpl_printf(vars, TPLADD, "CCC", "%d", nbx_ver);
 									tpl_addVar(vars, TPLADD, "CCD", "");
 									tpl_addVar(vars, TPLADD, "CLIENTPROTO", tpl_getTpl(vars, "PROTOCCCAMPIC"));
-								} else {
+								}
+								else
+								{
 									tpl_printf(vars, TPLADDONCE, "PROTOICON", "%s_r_%d",(char *)proto, nbx_ver);
 								}
 							}
@@ -3899,13 +3908,16 @@ static void webif_add_client_proto(struct templatevars *vars, struct s_client *c
 						snprintf(picon_name, sizeof(picon_name) / sizeof(char) - 1, "%s_%s_%s", (char *)proto, cc->remote_version, cc->remote_build);
 						if(picon_exists(picon_name))
 						{
-							if (!apicall) {
+							if (!apicall)
+							{
 								tpl_addVar(vars, TPLADD, "CCA", (char *)proto);
 								tpl_addVar(vars, TPLADD, "CCB", cc->remote_version);
 								tpl_addVar(vars, TPLADD, "CCC", cc->remote_build);
 								tpl_addVar(vars, TPLADD, "CCD", cc->extended_mode ? cc->remote_ncam : "");
 								tpl_addVar(vars, TPLADD, "CLIENTPROTO", tpl_getTpl(vars, "PROTOCCCAMPIC"));
-							} else {
+							}
+							else
+							{
 								tpl_printf(vars, TPLADDONCE, "PROTOICON", "%s_%s_%s",(char *)proto, cc->remote_version, cc->remote_build);
 							}
 						}
@@ -3929,7 +3941,7 @@ static void webif_add_client_proto(struct templatevars *vars, struct s_client *c
 			tpl_printf(vars, TPLADD, "CLIENTPROTO", "<A HREF=\"#\" CLASS=\"tooltip\">%s<SPAN>client: %s<BR>protocol version: %d</SPAN></A>", (char *)proto, dvbapi_get_client_name(), dvbapi_get_client_proto_version());
 		else
 			tpl_printf(vars, TPLADD, "CLIENTPROTO", "%s (client: %s, protocol version: %d)", (char *)proto, dvbapi_get_client_name(), dvbapi_get_client_proto_version());
-		tpl_printf(vars, TPLADD, "CLIENTPROTOSORT", "%s", (char *)proto);
+		tpl_printf(vars, TPLADD, "CLIENTPROTOSORT", "%s", proto);
 		return;
 	}
 #endif
@@ -3938,19 +3950,22 @@ static void webif_add_client_proto(struct templatevars *vars, struct s_client *c
 	if(cfg.http_showpicons)
 	{
 		char picon_name[32];
-		snprintf(picon_name, sizeof(picon_name) / sizeof(char) - 1, "%s", (char *)proto);
+		snprintf(picon_name, sizeof(picon_name) / sizeof(char) - 1, "%s", proto);
 		if(picon_exists(picon_name))
 		{
-			if (!apicall) {
+			if (!apicall)
+			{
 				tpl_addVar(vars, TPLADD, "OTHER", (char *)proto);
 				tpl_addVar(vars, TPLADD, "CLIENTPROTO", tpl_getTpl(vars, "PROTOOTHERPIC"));
-			} else {
+			}
+			else
+			{
 				tpl_printf(vars, TPLADDONCE, "PROTOICON", "%s",(char *)proto);
 			}
 		}
 		else
 		{
-			tpl_printf(vars, TPLADD, "CLIENTPROTOTITLE", "missing icon: IC_%s.tpl", (char *)proto);
+			tpl_printf(vars, TPLADD, "CLIENTPROTOTITLE", "missing icon: IC_%s.tpl", proto);
 		}
 	}
 }
@@ -4411,15 +4426,19 @@ static char *send_ncam_user_config(struct templatevars *vars, struct uriparams *
 		MD5((uint8_t *)account->usr, strlen(account->usr), md5tmp);
 		int z;
 		tpl_addVar(vars, TPLADD, "USERMD5","id_");
-		for (z = 0; z < MD5_DIGEST_LENGTH; z++){
+		for (z = 0; z < MD5_DIGEST_LENGTH; z++)
+		{
 			tpl_printf(vars, TPLAPPEND, "USERMD5", "%02x", md5tmp[z]);
 		}
 		tpl_addVar(vars, TPLADD, "USERNAME", xml_encode(vars, account->usr));
 		tpl_addVar(vars, TPLADD, "USERNAMEENC", urlencode(vars, account->usr));
-			if(!existing_insert){
+			if(!existing_insert)
+			{
 				tpl_printf(vars, TPLADD, "EXISTING_INS", "'%s'", urlencode(vars, account->usr));
 				existing_insert++;
-			}else{
+			}
+			else
+			{
 				tpl_printf(vars, TPLAPPEND, "EXISTING_INS", ",'%s'", urlencode(vars, account->usr));
 			}
 
@@ -4968,13 +4987,13 @@ static char *send_ncam_entitlement(struct templatevars *vars, struct uriparams *
 				if(caid_is_seca(rdr->caid) || caid_is_viaccess(rdr->caid))
 				{
 					if(rdr->maturity==0xF)
-						{
-							tpl_printf(vars, TPLAPPEND, "READERMATURITY", "%s ", "no limit");
-						}
-						else
-							{
-								tpl_printf(vars, TPLAPPEND, "READERMATURITY", "%d+", rdr->maturity);
-							}
+					{
+						tpl_printf(vars, TPLAPPEND, "READERMATURITY", "%s ", "no limit");
+					}
+					else
+					{
+						tpl_printf(vars, TPLAPPEND, "READERMATURITY", "%d+", rdr->maturity);
+					}
 				}
 				else
 				{
@@ -5020,9 +5039,9 @@ static char *send_ncam_logpoll(struct templatevars * vars, struct uriparams * pa
 	uint64_t lastid = 0;
 
 #ifdef WITH_DEBUG
-	//tpl_addVar(vars, TPLADD, "LOG_DEBUGMENU", tpl_getTpl(vars, "LOGDEBUGMENU"));
+	tpl_addVar(vars, TPLADD, "LOG_DEBUGMENU", tpl_getTpl(vars, "LOGDEBUGMENU"));
 #endif
-	//tpl_addVar(vars, TPLADD, "LOG_SIZEMENU", tpl_getTpl(vars, "LOGSIZEMENU"));
+	tpl_addVar(vars, TPLADD, "LOG_SIZEMENU", tpl_getTpl(vars, "LOGSIZEMENU"));
 	tpl_addVar(vars, TPLADD, "TITLEADD1", "Move mouse over log-window to stop scroll");
 
 	if(strcmp(getParam(params, "lastid"), "start") == 0){
@@ -5286,9 +5305,9 @@ static char *send_ncam_status(struct templatevars * vars, struct uriparams * par
 			else if(cl->typ == 'p')
 				{
 					proxy_count_all++;
-					if((cl->reader->typ == R_GBOX && cl->reader->card_status != CARD_INSERTED && cl->reader->card_status != NO_CARD) || 
-						(cl->reader->typ != R_GBOX && cl->reader->card_status != CARD_INSERTED))
-					    { proxy_count_off++; }
+					if((cl->reader->typ == R_GBOX && cl->reader->card_status != CARD_INSERTED && cl->reader->card_status != NO_CARD) ||
+							(cl->reader->typ != R_GBOX && cl->reader->card_status != CARD_INSERTED))
+						{ proxy_count_off++; }
 				}
 			else if(cl->typ == 'r')
 				{ reader_count_all++; if(cl->reader->card_status != CARD_INSERTED) { reader_count_off++; } }
@@ -5458,10 +5477,12 @@ static char *send_ncam_status(struct templatevars * vars, struct uriparams * par
 					tpl_addVar(vars, TPLADD, "CLIENTUSER", xml_encode(vars, usr));
 
 					tpl_addVar(vars, TPLADD, "STATUSUSERICON", xml_encode(vars, usr));
-					if (cl->typ == 'c' || cl->typ == 'm') {
+					if (cl->typ == 'c' || cl->typ == 'm')
+					{
 						tpl_addVar(vars, TPLADD, "USERNAME", xml_encode(vars, usr));
 						tpl_addVar(vars, TPLADD, "USERENC", urlencode(vars, usr));
-					} else if (cl->typ == 'p' || cl->typ == 'r') {
+					} else if (cl->typ == 'p' || cl->typ == 'r')
+					{
 						tpl_addVar(vars, TPLADD, "READERNAME", xml_encode(vars, usr));
 						tpl_addVar(vars, TPLADD, "READERNAMEENC", urlencode(vars, usr));
 					}
@@ -5474,7 +5495,8 @@ static char *send_ncam_status(struct templatevars * vars, struct uriparams * par
 					{
 						if(picon_exists(xml_encode(vars, usr)))
 						{
-							switch (cl->typ) {
+							switch (cl->typ)
+							{
 							case 'm': // Fall through
 							case 'c': status_user_icon_tpl = "SUSERICON"; picon_shown = true; break;
 							case 'p': // Fall through
@@ -5485,8 +5507,10 @@ static char *send_ncam_status(struct templatevars * vars, struct uriparams * par
 							tpl_printf(vars, TPLADD, "UPICMISSING", "%smissing icon: IC_%s.tpl",!apicall?"&#13;":"",xml_encode(vars, usr));
 					}
 
-					if (!picon_shown) {
-						switch (cl->typ) {
+					if (!picon_shown)
+					{
+						switch (cl->typ)
+						{
 						case 'm': // Fall through
 						case 'c': status_user_icon_tpl = "SUSER"; break;
 						case 'p': // Fall through
@@ -5883,53 +5907,73 @@ static char *send_ncam_status(struct templatevars * vars, struct uriparams * par
 						tpl_printf(vars, TPLADD, "CFGH", "%d", cfg.hideclient_to);
 						tpl_addVar(vars, TPLADD, "CHEADADD", tpl_getTpl(vars, "CLIENTHEADLINEADD"));
 					}
-						tpl_printf(vars, TPLADD, "UCS", "%d", user_count_shown);
-						tpl_printf(vars, TPLADD, "UCA", "%d", user_count_all);
-						tpl_addVar(vars, TPLADD, "HIDEIDLE", "5");
-						tpl_addVar(vars, TPLADD, "SHOWHIDDEN", "User");
-						tpl_addVar(vars, TPLADD, "XHEAD", tpl_getTpl(vars, "CLIENTHEADLINE"));
-						tpl_addVar(vars, TPLADD, "CLIENTOPTIONADD", tpl_getTpl(vars, "CLIENTHEADLINEBIT"));
-						tpl_addVar(vars, TPLADD, "CLIENTHEADLINE", tpl_getTpl(vars, "STATUSHEADLINE"));
-						tpl_addVar(vars, TPLADD, "CLIENTOPTIONADD", "");
+					tpl_printf(vars, TPLADD, "UCS", "%d", user_count_shown);
+					tpl_printf(vars, TPLADD, "UCA", "%d", user_count_all);
+					tpl_addVar(vars, TPLADD, "HIDEIDLE", "5");
+					tpl_addVar(vars, TPLADD, "SHOWHIDDEN", "User");
+					tpl_addVar(vars, TPLADD, "XHEAD", tpl_getTpl(vars, "CLIENTHEADLINE"));
+					tpl_addVar(vars, TPLADD, "CLIENTOPTIONADD", tpl_getTpl(vars, "CLIENTHEADLINEBIT"));
+					tpl_addVar(vars, TPLADD, "CLIENTHEADLINE", tpl_getTpl(vars, "STATUSHEADLINE"));
+					tpl_addVar(vars, TPLADD, "CLIENTOPTIONADD", "");
 				}
 				else if(cl->typ == 'r')
 				{
-					if(shown) { tpl_addVar(vars, TPLAPPEND, "READERSTATUS", tpl_getTpl(vars, "CLIENTSTATUSBIT")); }
-						tpl_printf(vars, TPLADD, "RCC", "%d", reader_count_conn);
-						tpl_printf(vars, TPLADD, "RCA", "%d", reader_count_all);
-						if(reader_count_off) {
-							tpl_printf(vars, TPLADD, "RCO", "%d", reader_count_all-reader_count_off);
-							tpl_addVar(vars, TPLADD, "RHEADADD", tpl_getTpl(vars, "CLIENTRHEADLINEADD"));
-						}
-						tpl_addVar(vars, TPLADD, "HIDEIDLE", "3");
-						tpl_addVar(vars, TPLADD, "SHOWHIDDEN", "Reader");
-						tpl_addVar(vars, TPLADD, "XHEAD", tpl_getTpl(vars, "CLIENTRHEADLINE"));
-						tpl_addVar(vars, TPLADD, "READERHEADLINE", tpl_getTpl(vars, "STATUSHEADLINE"));
+					if(shown)
+					{
+						tpl_addVar(vars, TPLAPPEND, "READERSTATUS", tpl_getTpl(vars, "CLIENTSTATUSBIT"));
+					}
+
+					tpl_printf(vars, TPLADD, "RCC", "%d", reader_count_conn);
+					tpl_printf(vars, TPLADD, "RCA", "%d", reader_count_all);
+
+					if(reader_count_off)
+					{
+						tpl_printf(vars, TPLADD, "RCO", "%d", reader_count_all-reader_count_off);
+						tpl_addVar(vars, TPLADD, "RHEADADD", tpl_getTpl(vars, "CLIENTRHEADLINEADD"));
+					}
+
+					tpl_addVar(vars, TPLADD, "HIDEIDLE", "3");
+					tpl_addVar(vars, TPLADD, "SHOWHIDDEN", "Reader");
+					tpl_addVar(vars, TPLADD, "XHEAD", tpl_getTpl(vars, "CLIENTRHEADLINE"));
+					tpl_addVar(vars, TPLADD, "READERHEADLINE", tpl_getTpl(vars, "STATUSHEADLINE"));
 				}
 				else if(cl->typ == 'p')
 				{
-					if(shown) { tpl_addVar(vars, TPLAPPEND, "PROXYSTATUS", tpl_getTpl(vars, "CLIENTSTATUSBIT")); }
-						tpl_printf(vars, TPLADD, "PCC", "%d", proxy_count_conn);
-						tpl_printf(vars, TPLADD, "PCA", "%d", proxy_count_all);
-						if(proxy_count_off) {
-							tpl_printf(vars, TPLADD, "PCO", "%d", proxy_count_all-proxy_count_off);
-							tpl_addVar(vars, TPLADD, "PHEADADD", tpl_getTpl(vars, "CLIENTPHEADLINEADD"));
-						}
-						tpl_addVar(vars, TPLADD, "HIDEIDLE", "4");
-						tpl_addVar(vars, TPLADD, "SHOWHIDDEN", "Proxy");
-						tpl_addVar(vars, TPLADD, "XHEAD", tpl_getTpl(vars, "CLIENTPHEADLINE"));
-						tpl_addVar(vars, TPLADD, "PROXYHEADLINE", tpl_getTpl(vars, "STATUSHEADLINE"));
+					if(shown)
+					{
+						tpl_addVar(vars, TPLAPPEND, "PROXYSTATUS", tpl_getTpl(vars, "CLIENTSTATUSBIT"));
+					}
+
+					tpl_printf(vars, TPLADD, "PCC", "%d", proxy_count_conn);
+					tpl_printf(vars, TPLADD, "PCA", "%d", proxy_count_all);
+
+					if(proxy_count_off)
+					{
+						tpl_printf(vars, TPLADD, "PCO", "%d", proxy_count_all-proxy_count_off);
+						tpl_addVar(vars, TPLADD, "PHEADADD", tpl_getTpl(vars, "CLIENTPHEADLINEADD"));
+					}
+
+					tpl_addVar(vars, TPLADD, "HIDEIDLE", "4");
+					tpl_addVar(vars, TPLADD, "SHOWHIDDEN", "Proxy");
+					tpl_addVar(vars, TPLADD, "XHEAD", tpl_getTpl(vars, "CLIENTPHEADLINE"));
+					tpl_addVar(vars, TPLADD, "PROXYHEADLINE", tpl_getTpl(vars, "STATUSHEADLINE"));
 				}
 				else if(cl->typ == 'm' || cl->typ == 's' || cl->typ == 'h')
 				{
-					if(shown) { tpl_addVar(vars, TPLAPPEND, "SERVERSTATUS", tpl_getTpl(vars, "CLIENTSTATUSBIT")); }
-						tpl_addVar(vars, TPLADD, "HIDEIDLE", "2");
-						tpl_addVar(vars, TPLADD, "SHOWHIDDEN", "Server");
+					if(shown)
+					{
+						tpl_addVar(vars, TPLAPPEND, "SERVERSTATUS", tpl_getTpl(vars, "CLIENTSTATUSBIT"));
+					}
+
+					tpl_addVar(vars, TPLADD, "HIDEIDLE", "2");
+					tpl_addVar(vars, TPLADD, "SHOWHIDDEN", "Server");
+
 					if(cl->typ == 's' || cl->typ == 'h')
 					{
 						tpl_printf(vars, TPLADD, "SCS", "%d", server_count_shown);
 						tpl_printf(vars, TPLADD, "SCA", "%d", server_count_all);
 						tpl_addVar(vars, TPLADD, "XHEAD", tpl_getTpl(vars, "CLIENTSHEADLINE"));
+
 						if(shown || cl->wihidden)
 						{
 							tpl_addVar(vars, TPLADD, "SERVERHEADLINE", tpl_getTpl(vars, "STATUSHEADLINE"));
@@ -5953,7 +5997,10 @@ static char *send_ncam_status(struct templatevars * vars, struct uriparams * par
 				if(shown)
 				{
 					if(apicall == 1)
-					{ tpl_addVar(vars, TPLAPPEND, "APISTATUSBITS", tpl_getTpl(vars, "APISTATUSBIT")); }
+					{
+						tpl_addVar(vars, TPLAPPEND, "APISTATUSBITS", tpl_getTpl(vars, "APISTATUSBIT"));
+					}
+
 					if(apicall == 2)
 					{
 						tpl_addVar(vars, TPLADD, "JSONARRAYDELIMITER", delimiter?",":"");
@@ -6570,7 +6617,8 @@ static char *send_ncam_script(struct templatevars * vars, struct uriparams * par
 
 					fp = popen(system_str,"r");
 
-					while (fgets(buf, sizeof(buf), fp) != NULL) {
+					while (fgets(buf, sizeof(buf), fp) != NULL)
+					{
 						tpl_addVar(vars, TPLAPPEND, "SCRIPTRESULTOUT", buf);
 					}
 
@@ -6850,7 +6898,7 @@ static char *send_ncam_files(struct templatevars * vars, struct uriparams * para
 		if(streq(file, entry->file))
 		{
 			if(!apicall) { setActiveSubMenu(vars, entry->menu_id); }
-			menu_id  = entry->menu_id;
+			menu_id = entry->menu_id;
 			tpl_addVar(vars, TPLADD, "APIWRITABLE", writable ? "1" : "0");
 			switch(entry->type)
 			{
@@ -6991,7 +7039,6 @@ static char *send_ncam_failban(struct templatevars * vars, struct uriparams * pa
 
 	if(strcmp(getParam(params, "action"), "delete") == 0)
 	{
-
 		if(strcmp(getParam(params, "intip"), "all") == 0)
 		{
 			// clear whole list
@@ -7022,7 +7069,6 @@ static char *send_ncam_failban(struct templatevars * vars, struct uriparams * pa
 
 	while((v_ban_entry = ll_iter_next(&itr)))
 	{
-
 		tpl_printf(vars, TPLADD, "IPADDRESS", "%s@%d", cs_inet_ntoa(v_ban_entry->v_ip), v_ban_entry->v_port);
 		tpl_addVar(vars, TPLADD, "VIOLATIONUSER", v_ban_entry->info ? v_ban_entry->info : "unknown");
 		struct tm st ;
@@ -7074,7 +7120,6 @@ static char *send_ncam_failban(struct templatevars * vars, struct uriparams * pa
 
 static bool send_EMM(struct s_reader * rdr, uint16_t caid, const struct s_cardsystem *csystem, const uint8_t *emmhex, uint32_t len)
 {
-
 	if(NULL != rdr && NULL != emmhex && 0 != len)
 	{
 		EMM_PACKET *emm_pack = NULL;
@@ -7501,18 +7546,27 @@ static char *send_ncam_cacheex(struct templatevars * vars, struct uriparams * pa
 		{
 			cacheex_name_link_tpl = "SUSER";
 			tpl_addVar(vars, TPLADD, "TYPE", "Client");
-			if(!apicall) { 
+			
+			if(!apicall)
+			{ 
 				tpl_addVar(vars, TPLADD, "USERNAME", xml_encode(vars, cl->account->usr));
 				tpl_addVar(vars, TPLADD, "USERENC", urlencode(vars, cl->account->usr));
-				if(cl->account->description) {
+				
+				if(cl->account->description)
+				{
 					tpl_printf(vars, TPLADD, "CLIENTDESCRIPTION","%s(%s)",!apicall?"&#13;":"",xml_encode(vars, cl->account->description));
 				}
-			} else {
+			}
+			else
+			{
 				tpl_addVar(vars, TPLADD, "NAME", cl->account->usr);
-				if(cl->account->description) {
+				
+				if(cl->account->description)
+				{
 					tpl_addVar(vars, TPLADD, "CLIENTDESCRIPTION", cl->account->description);
 				}
 			}
+			
 			tpl_addVar(vars, TPLADD, "IP", cs_inet_ntoa(cl->ip));
 			tpl_printf(vars, TPLADD, "NODE", "%" PRIu64 "X", get_cacheex_node(cl));
 			tpl_addVar(vars, TPLADD, "LEVEL", level[cl->account->cacheex.mode]);
@@ -7530,18 +7584,27 @@ static char *send_ncam_cacheex(struct templatevars * vars, struct uriparams * pa
 		{
 			cacheex_name_link_tpl = "SREADER";
 			tpl_addVar(vars, TPLADD, "TYPE", "Reader");
-			if(!apicall) {
+
+			if(!apicall)
+			{
 				tpl_addVar(vars, TPLADD, "READERNAME", xml_encode(vars, cl->reader->label));
 				tpl_addVar(vars, TPLADD, "READERNAMEENC", urlencode(vars, cl->reader->label));
-				if(cl->reader->description) {
+				
+				if(cl->reader->description)
+				{
 					tpl_printf(vars, TPLADD, "CLIENTDESCRIPTION","%s(%s)",!apicall?"&#13;":"",xml_encode(vars, cl->reader->description));
 				}
-			} else {
+			}
+			else
+			{
 				tpl_addVar(vars, TPLADD, "NAME", cl->reader->label);
-				if(cl->reader->description) {
+				
+				if(cl->reader->description)
+				{
 					tpl_addVar(vars, TPLADD, "CLIENTDESCRIPTION", cl->reader->description);
 				}
 			}
+
 			tpl_addVar(vars, TPLADD, "IP", cs_inet_ntoa(cl->ip));
 			tpl_printf(vars, TPLADD, "NODE", "%" PRIu64 "X", get_cacheex_node(cl));
 			tpl_addVar(vars, TPLADD, "LEVEL", level[cl->reader->cacheex.mode]);
@@ -7553,6 +7616,7 @@ static char *send_ncam_cacheex(struct templatevars * vars, struct uriparams * pa
 			tpl_printf(vars, TPLADD, "ERR", "%d", cl->cwcacheexerr);
 			tpl_printf(vars, TPLADD, "ERRCW", "%d", cl->cwcacheexerrcw);
 			tpl_addVar(vars, TPLADD, "DIRECTIONIMG", (cl->reader->cacheex.mode == 3) ? pushing : getting);
+
 			rowvariable = "TABLEREADERROWS";
 			written = 1;
 		}
@@ -7560,14 +7624,20 @@ static char *send_ncam_cacheex(struct templatevars * vars, struct uriparams * pa
 		{
 			cacheex_name_link_tpl = "SREADER";
 			tpl_addVar(vars, TPLADD, "TYPE", "csp");
-			if(!apicall) {
+
+			if(!apicall)
+			{
 				tpl_addVar(vars, TPLADD, "READERNAME", "csp");
 				tpl_addVar(vars, TPLADD, "READERNAMEENC", "csp");
-			} else {
+			}
+			else
+			{
 				tpl_addVar(vars, TPLADD, "NAME", "csp");
 			}
+
 			tpl_addVar(vars, TPLADD, "IP", cs_inet_ntoa(cl->ip));
 			tpl_addVar(vars, TPLADD, "NODE", "csp");
+
 			if(cl->cwcacheexping)
 			{
 				tpl_printf(vars, TPLADD, "LEVEL", "csp (%d ms)", cl->cwcacheexping);
@@ -7576,19 +7646,22 @@ static char *send_ncam_cacheex(struct templatevars * vars, struct uriparams * pa
 			{
 				tpl_addVar(vars, TPLADD, "LEVEL", "csp");
 			}
+
 			tpl_printf(vars, TPLADD, "PUSH", "%d", cl->cwcacheexpush);
 			tpl_printf(vars, TPLADD, "GOT", "%d", cl->cwcacheexgot);
 			tpl_printf(vars, TPLADD, "HIT", "%d", cl->cwcacheexhit);
 			tpl_printf(vars, TPLADD, "ERR", "%d", cl->cwcacheexerr);
 			tpl_printf(vars, TPLADD, "ERRCW", "%d", cl->cwcacheexerrcw);
 			tpl_addVar(vars, TPLADD, "DIRECTIONIMG", getting);
+
 			rowvariable = "TABLECLIENTROWS";
 			written = 1;
 		}
 
 		if(written)
 		{
-			if(!apicall) {
+			if(!apicall)
+			{
 				tpl_addVar(vars, TPLADD, "NAME", tpl_getTpl(vars, cacheex_name_link_tpl));
 			}
 			tpl_addVar(vars, TPLAPPEND, rowvariable, tpl_getTpl(vars, "CACHEEXTABLEROW"));
@@ -7600,7 +7673,6 @@ static char *send_ncam_cacheex(struct templatevars * vars, struct uriparams * pa
 
 				while((cacheex_stats_entry = ll_iter_next(&itr)))
 				{
-
 					tpl_addVar(vars, TPLADD, "DIRECTIONIMG", "");
 					if(now - cacheex_stats_entry->cache_last < 20)
 						{ tpl_addVar(vars, TPLADD, "TYPE", cacheex_stats_entry->cache_direction == 0 ? pushing : getting); }
@@ -7628,7 +7700,8 @@ static char *send_ncam_cacheex(struct templatevars * vars, struct uriparams * pa
 						tpl_addVar(vars, TPLAPPEND, "JSONCACHEEXBITS", tpl_getTpl(vars, "JSONCACHEEXBIT"));
 						delimiter++;
 					}
-					else{
+					else
+					{
 						tpl_addVar(vars, TPLAPPEND, rowvariable, tpl_getTpl(vars, "CACHEEXTABLEROW"));
 					}
 
@@ -8330,7 +8403,6 @@ static int32_t process_request(FILE * f, IN_ADDR_T in)
 			cs_log("unauthorized access from %s - invalid ip or dyndns", cs_inet_ntoa(addr));
 			return 0;
 		}
-
 		int32_t authok = 0;
 		char expectednonce[(MD5_DIGEST_LENGTH * 2) + 1], opaque[(MD5_DIGEST_LENGTH * 2) + 1];
 		char authheadertmp[sizeof(AUTHREALM) + sizeof(expectednonce) + sizeof(opaque) + 100];
