@@ -188,7 +188,7 @@ static void set_status_info(struct templatevars *vars, struct pstat stats){
 
 	if (stats.check_available & (1 << 12))
 	{
-		tpl_addVar(vars, TPLADD, "NCAM_REFRESH" , "N/A");
+		tpl_addVar(vars, TPLADD, "OSCAM_REFRESH" , "N/A");
 	}
 	else
 	{
@@ -1668,6 +1668,7 @@ static char *send_ncam_config_anticasc(struct templatevars *vars, struct uripara
 	webif_save_config("anticasc", vars, params);
 
 	if(cfg.ac_enabled > 0) { tpl_addVar(vars, TPLADD, "CHECKED", "checked"); }
+
 	tpl_printf(vars, TPLADD, "NUMUSERS", "%d", cfg.ac_users);
 	tpl_printf(vars, TPLADD, "SAMPLETIME", "%d", cfg.ac_stime);
 	tpl_printf(vars, TPLADD, "SAMPLES", "%d", cfg.ac_samples);
@@ -1677,6 +1678,7 @@ static char *send_ncam_config_anticasc(struct templatevars *vars, struct uripara
 
 	if(cfg.ac_logfile)
 		{ tpl_addVar(vars, TPLADD, "ACLOGFILE", cfg.ac_logfile); }
+
 	tpl_printf(vars, TPLADD, "FAKEDELAY", "%d", cfg.ac_fakedelay);
 	tpl_printf(vars, TPLADD, "DENYSAMPLES", "%d", cfg.ac_denysamples);
 
@@ -1948,8 +1950,6 @@ static char *send_ncam_reader(struct templatevars *vars, struct uriparams *param
 			{
 				tpl_printf(vars, TPLAPPEND, "LABELMD5", "%02x", md5tmp[z]);
 			}
-				tpl_printf(vars, TPLAPPEND, "LABELMD5", "%02x", md5tmp[z]);
-			}
 #ifdef MODULE_GBOX
 			if(apicall)
 			{
@@ -1975,7 +1975,14 @@ static char *send_ncam_reader(struct templatevars *vars, struct uriparams *param
 			if(rdr->enable) { active_readers += 1; }
 			else { disabled_readers += 1; }
 
-			if(rdr->tcp_connected) { connected_readers += 1; }
+			if(rdr->tcp_connected) {
+				connected_readers += 1;
+				tpl_addVar(vars, TPLADD, "READERIP", cs_inet_ntoa(rdr->client->ip));
+			}
+			else
+			{
+				tpl_addVar(vars, TPLADD, "READERIP", "offline");
+			}
 
 			if(rdr->description)
 				tpl_printf(vars, TPLADD, "DESCRIPTION","%s(%s)",!apicall?"&#13;":"",xml_encode(vars, rdr->description));
@@ -1985,7 +1992,7 @@ static char *send_ncam_reader(struct templatevars *vars, struct uriparams *param
 			if(cfg.http_showpicons && !apicall)
 			{
 				tpl_addVar(vars, TPLADD, "READERBIT", tpl_getTpl(vars, picon_exists(xml_encode(vars, rdr->label)) ? "READERNAMEBIT" : "READERNOICON"));
-				tpl_addVar(vars, TPLADD, "CTYP", picon_exists(xml_encode(vars, reader_get_type_desc(rdr, 0))) ? tpl_getTpl(vars, "READERCTYPBIT") : tpl_getTpl(vars, "READERCTYPNOICON"));
+				tpl_addVar(vars, TPLADD, "CTYP", picon_exists(xml_encode(vars, reader_get_type_desc(rdr))) ? tpl_getTpl(vars, "READERCTYPBIT") : tpl_getTpl(vars, "READERCTYPNOICON"));
 			}
 			else
 				tpl_addVar(vars, TPLADD, "READERBIT", tpl_getTpl(vars, "READERLABEL"));
@@ -4308,7 +4315,7 @@ static char *send_ncam_user_config(struct templatevars *vars, struct uriparams *
 			}
 
 			lastresponsetm = latestclient->cwlastresptime;
-			if(latestclient != NULL) {
+			if(latestclient->ip) {
 				connected_users += 1;
 				tpl_addVar(vars, TPLADD, "CLIENTIP", cs_inet_ntoa(latestclient->ip));
 				if(isactive > 0 || conn > 0)
@@ -5481,7 +5488,8 @@ static char *send_ncam_status(struct templatevars * vars, struct uriparams * par
 					{
 						tpl_addVar(vars, TPLADD, "USERNAME", xml_encode(vars, usr));
 						tpl_addVar(vars, TPLADD, "USERENC", urlencode(vars, usr));
-					} else if (cl->typ == 'p' || cl->typ == 'r')
+					}
+					else if (cl->typ == 'p' || cl->typ == 'r')
 					{
 						tpl_addVar(vars, TPLADD, "READERNAME", xml_encode(vars, usr));
 						tpl_addVar(vars, TPLADD, "READERNAMEENC", urlencode(vars, usr));
@@ -7039,6 +7047,7 @@ static char *send_ncam_failban(struct templatevars * vars, struct uriparams * pa
 
 	if(strcmp(getParam(params, "action"), "delete") == 0)
 	{
+
 		if(strcmp(getParam(params, "intip"), "all") == 0)
 		{
 			// clear whole list
@@ -7069,6 +7078,7 @@ static char *send_ncam_failban(struct templatevars * vars, struct uriparams * pa
 
 	while((v_ban_entry = ll_iter_next(&itr)))
 	{
+
 		tpl_printf(vars, TPLADD, "IPADDRESS", "%s@%d", cs_inet_ntoa(v_ban_entry->v_ip), v_ban_entry->v_port);
 		tpl_addVar(vars, TPLADD, "VIOLATIONUSER", v_ban_entry->info ? v_ban_entry->info : "unknown");
 		struct tm st ;
@@ -7120,6 +7130,7 @@ static char *send_ncam_failban(struct templatevars * vars, struct uriparams * pa
 
 static bool send_EMM(struct s_reader * rdr, uint16_t caid, const struct s_cardsystem *csystem, const uint8_t *emmhex, uint32_t len)
 {
+
 	if(NULL != rdr && NULL != emmhex && 0 != len)
 	{
 		EMM_PACKET *emm_pack = NULL;
@@ -7546,12 +7557,12 @@ static char *send_ncam_cacheex(struct templatevars * vars, struct uriparams * pa
 		{
 			cacheex_name_link_tpl = "SUSER";
 			tpl_addVar(vars, TPLADD, "TYPE", "Client");
-			
+
 			if(!apicall)
 			{ 
 				tpl_addVar(vars, TPLADD, "USERNAME", xml_encode(vars, cl->account->usr));
 				tpl_addVar(vars, TPLADD, "USERENC", urlencode(vars, cl->account->usr));
-				
+
 				if(cl->account->description)
 				{
 					tpl_printf(vars, TPLADD, "CLIENTDESCRIPTION","%s(%s)",!apicall?"&#13;":"",xml_encode(vars, cl->account->description));
@@ -7560,13 +7571,13 @@ static char *send_ncam_cacheex(struct templatevars * vars, struct uriparams * pa
 			else
 			{
 				tpl_addVar(vars, TPLADD, "NAME", cl->account->usr);
-				
+
 				if(cl->account->description)
 				{
 					tpl_addVar(vars, TPLADD, "CLIENTDESCRIPTION", cl->account->description);
 				}
 			}
-			
+
 			tpl_addVar(vars, TPLADD, "IP", cs_inet_ntoa(cl->ip));
 			tpl_printf(vars, TPLADD, "NODE", "%" PRIu64 "X", get_cacheex_node(cl));
 			tpl_addVar(vars, TPLADD, "LEVEL", level[cl->account->cacheex.mode]);
@@ -7589,7 +7600,7 @@ static char *send_ncam_cacheex(struct templatevars * vars, struct uriparams * pa
 			{
 				tpl_addVar(vars, TPLADD, "READERNAME", xml_encode(vars, cl->reader->label));
 				tpl_addVar(vars, TPLADD, "READERNAMEENC", urlencode(vars, cl->reader->label));
-				
+
 				if(cl->reader->description)
 				{
 					tpl_printf(vars, TPLADD, "CLIENTDESCRIPTION","%s(%s)",!apicall?"&#13;":"",xml_encode(vars, cl->reader->description));
@@ -7598,7 +7609,7 @@ static char *send_ncam_cacheex(struct templatevars * vars, struct uriparams * pa
 			else
 			{
 				tpl_addVar(vars, TPLADD, "NAME", cl->reader->label);
-				
+
 				if(cl->reader->description)
 				{
 					tpl_addVar(vars, TPLADD, "CLIENTDESCRIPTION", cl->reader->description);
@@ -7701,7 +7712,7 @@ static char *send_ncam_cacheex(struct templatevars * vars, struct uriparams * pa
 						delimiter++;
 					}
 					else
-					{
+					}
 						tpl_addVar(vars, TPLAPPEND, rowvariable, tpl_getTpl(vars, "CACHEEXTABLEROW"));
 					}
 
@@ -8403,6 +8414,7 @@ static int32_t process_request(FILE * f, IN_ADDR_T in)
 			cs_log("unauthorized access from %s - invalid ip or dyndns", cs_inet_ntoa(addr));
 			return 0;
 		}
+
 		int32_t authok = 0;
 		char expectednonce[(MD5_DIGEST_LENGTH * 2) + 1], opaque[(MD5_DIGEST_LENGTH * 2) + 1];
 		char authheadertmp[sizeof(AUTHREALM) + sizeof(expectednonce) + sizeof(opaque) + 100];
