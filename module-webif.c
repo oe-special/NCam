@@ -188,7 +188,7 @@ static void set_status_info(struct templatevars *vars, struct pstat stats){
 
 	if (stats.check_available & (1 << 12))
 	{
-		tpl_addVar(vars, TPLADD, "OSCAM_REFRESH" , "N/A");
+		tpl_addVar(vars, TPLADD, "NCAM_REFRESH" , "N/A");
 	}
 	else
 	{
