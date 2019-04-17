@@ -4315,7 +4315,8 @@ static char *send_ncam_user_config(struct templatevars *vars, struct uriparams *
 			}
 
 			lastresponsetm = latestclient->cwlastresptime;
-			if(latestclient->ip) {
+			if(latestclient != NULL)
+			{
 				connected_users += 1;
 				tpl_addVar(vars, TPLADD, "CLIENTIP", cs_inet_ntoa(latestclient->ip));
 				if(isactive > 0 || conn > 0)
@@ -7706,13 +7707,14 @@ static char *send_ncam_cacheex(struct templatevars * vars, struct uriparams * pa
 					char channame[CS_SERVICENAME_SIZE];
 					char *lastchan = xml_encode(vars, get_servicename(cl, cacheex_stats_entry->cache_srvid, cacheex_stats_entry->cache_prid, cacheex_stats_entry->cache_caid, channame, sizeof(channame)));
 					tpl_addVar(vars, TPLADD, "LEVEL", lastchan);
-					if (apicall == 2){
+					if (apicall == 2)
+					{
 						tpl_printf(vars, TPLADD, "JSONDELIMITER", "%s", (delimiter > 1)?",":"");
 						tpl_addVar(vars, TPLAPPEND, "JSONCACHEEXBITS", tpl_getTpl(vars, "JSONCACHEEXBIT"));
 						delimiter++;
 					}
 					else
-					}
+					{
 						tpl_addVar(vars, TPLAPPEND, rowvariable, tpl_getTpl(vars, "CACHEEXTABLEROW"));
 					}
 
