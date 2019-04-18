@@ -2,6 +2,7 @@
 #include "../ncam-string.h"
 #include "mdc2.h"
 
+#if !defined(WITH_SSL) && !defined(WITH_LIBCRYPTO)
 //#include <stdio.h>
 //#include <stdlib.h>
 //#include <string.h>
@@ -679,3 +680,5 @@ int MDC2_Final(unsigned char *md, MDC2_CTX *c)
 	memcpy(&(md[MDC2_BLOCK]), (char *)c->hh, MDC2_BLOCK);
 	return 1;
 }
+
+#endif
