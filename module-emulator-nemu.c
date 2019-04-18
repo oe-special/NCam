@@ -865,6 +865,8 @@ void emu_read_keymemory(struct s_reader *rdr)
 	}
 	free(keyData);
 }
+#else
+void emu_read_keymemory(struct s_reader *UNUSED(rdr)) { }
 #endif
 
 static const char *get_process_ecm_error_reason(int8_t result)
