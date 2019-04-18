@@ -237,9 +237,7 @@ static int32_t emu_card_info(struct s_reader *rdr)
 	ll_destroy_data(&rdr->ll_biss2_rsa_keys);
 
 	// Read keys built in the NCam binary
-#if defined(WITH_SOFTCAM) && !defined(__APPLE__) && !defined(__ANDROID__)
 	emu_read_keymemory(rdr);
-#endif
 
 	// Read keys from SoftCam.Key file
 	emu_set_keyfile_path(cs_confdir);
