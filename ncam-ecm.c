@@ -673,20 +673,8 @@ int32_t send_dcw(struct s_client *client, ECM_REQUEST *er)
 	cs_log_dbg(D_LB, "{client %s, caid %04X, prid %06X, srvid %04X} [send_dcw] rc %d from reader %s", (check_client(er->client) ? er->client->account->usr : "-"), er->caid, er->prid, er->srvid, er->rc, er->selected_reader ? er->selected_reader->label : "-");
 
 	static const char stageTxt[] = { '0', 'C', 'L', 'P', 'F', 'X' };
-	static const char *stxt[] = {	"found",
-					"cache1",
-					"cache2",
-					"cache3",
-					"not found",
-					"timeout",
-					"sleeping",
-					"fake",
-					"invalid",
-					"corrupt",
-					"no card",
-					"expdate",
-					"disabled",
-					"stopped"};
+	static const char *stxt[] = { "found", "cache1", "cache2", "cache3", "not found", "timeout", "sleeping",
+								"fake", "invalid", "corrupt", "no card", "expdate", "disabled", "stopped" };
 
 	static const char *stxtEx[16] = {"", "group", "caid", "ident", "class", "chid", "queue", "peer", "sid", "", "", "", "", "", "", ""};
 	static const char *stxtWh[16] = {"", "user ", "reader ", "server ", "lserver ", "", "", "", "", "", "", "", "" , "" , "", ""};
@@ -1014,7 +1002,7 @@ int32_t send_dcw(struct s_client *client, ECM_REQUEST *er)
 			if(client->account->acosc_penalty_active > 0)
 			{
 				if(client->account->acosc_penalty_active == 4)
-					{ cs_log("[zaplist] ACoSC for Client: %s  penalty_duration: %ld seconds left(%s)", username(client), client->account->acosc_penalty_until - zaptime, info3); }
+					{ cs_log_dbg(D_TRACE, "[zaplist] ACoSC for Client: %s  penalty_duration: %ld seconds left(%s)", username(client), client->account->acosc_penalty_until - zaptime, info3); }
 
 				int16_t lt = get_module(client)->listenertype;
 				switch(penalty)
@@ -1577,7 +1565,7 @@ static void logCWtoFile(ECM_REQUEST *er, uint8_t *cw)
 	if(writeheader)
 	{
 		/* no global macro for cardserver name :( */
-		fprintf(pfCWL, "# NCAm cardserver v%s - https://www.tunisia-sat.com\n", CS_VERSION);
+		fprintf(pfCWL, "# Ncam cardserver v%s - https://www.tunisia-sat.com\n", CS_VERSION);
 		fprintf(pfCWL, "# control word log file for use with tsdec offline decrypter\n");
 		strftime(buf, sizeof(buf), "DATE %Y-%m-%d, TIME %H:%M:%S, TZ %Z\n", &timeinfo);
 		fprintf(pfCWL, "# %s", buf);
@@ -1650,24 +1638,24 @@ int32_t write_ecm_answer(struct s_reader *reader, ECM_REQUEST *er, int8_t rc, ui
 	if(reader && cw && rc < E_NOTFOUND)
 	{
 		if(!cfg.disablecrccws && !reader->disablecrccws)
-	        {
-	            	if(!(chk_if_ignore_checksum(er, &cfg.disablecrccws_only_for) + chk_if_ignore_checksum(er, &reader->disablecrccws_only_for)))
-	            	{
+		{
+			if(!(chk_if_ignore_checksum(er, &cfg.disablecrccws_only_for) + chk_if_ignore_checksum(er, &reader->disablecrccws_only_for)))
+			{
 				uint8_t i, c;
 				for(i = 0; i < 16; i += 4)
 				{
 					c = ((cw[i] + cw[i + 1] + cw[i + 2]) & 0xff);
- 		
+
 					if(cw[i + 3] != c)
 					{
 						uint8_t nano = 0x00;
 						if(er->caid == 0x100 && er->ecm[5] > 0x00)
 						{
 							nano = er->ecm[5]; // seca nano protection
- 	                        		}
- 	
- 	                        		if(reader->dropbadcws && !nano) // only drop controlword if no cw encryption is applied
- 	                        		{
+						}
+
+						if(reader->dropbadcws && !nano) // only drop controlword if no cw encryption is applied
+						{
 							rc = E_NOTFOUND;
 							rcEx = E2_WRONG_CHKSUM;
 							break;
@@ -1682,15 +1670,15 @@ int32_t write_ecm_answer(struct s_reader *reader, ECM_REQUEST *er, int8_t rc, ui
 							else
 							{
 								if(i == 12) // there are servers delivering correct controlwords but with failing last cw checksum (on purpose?!)
- 	                                			{
-									cs_log_dbg(D_TRACE,"NANO%02d: BAD PEER DETECTED, oscam has fixed the last cw crc that wasn't matching!", nano);
+								{
+									cs_log_dbg(D_TRACE,"NANO%02d: BAD PEER DETECTED, ncam has fixed the last cw crc that wasn't matching!", nano);
 									cw[i + 3] = c; // fix the last controlword
- 	                                			}
- 	                                			else
- 	                                			{
+								}
+								else
+								{
 									cs_log_dbg(D_TRACE,"NANO%02d: not fixing the crc of this cw since its still encrypted!", nano);
 									break; // crc failed so stop!
- 	                                			}
+								}
 							}
 						}
 					}
@@ -1698,9 +1686,9 @@ int32_t write_ecm_answer(struct s_reader *reader, ECM_REQUEST *er, int8_t rc, ui
 			}
 			else
 			{
- 		                cs_log_dbg(D_TRACE, "notice: CW checksum check disabled for %04X:%06X", er->caid, er->prid);
-	            	}
-	        }
+				cs_log_dbg(D_TRACE, "notice: CW checksum check disabled for %04X:%06X", er->caid, er->prid);
+			}
+		}
 		else
 		{
 			cs_log_dbg(D_TRACE, "notice: CW checksum check disabled");
