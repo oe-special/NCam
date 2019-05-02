@@ -1237,7 +1237,7 @@ static int32_t dvbapi_detect_api(void)
 				}
 #endif
 				maxfilter = filtercount;
-				cs_log("Detected %s Api: %d, userconfig boxtype: %d maximum number of filters is %d (oscam limit is %d)",
+				cs_log("Detected %s Api: %d, userconfig boxtype: %d maximum number of filters is %d (ncam limit is %d)",
 					device_path, selected_api, cfg.dvbapi_boxtype, filtercount, MAX_FILTER);
 			}
 
@@ -2948,7 +2948,7 @@ void dvbapi_read_priority(void)
 		{
 			// fprintf(stderr, "Warning: line containing %s in %s not recognized, ignoring line\n", token, cs_prio);
 			// fprintf would issue the warning to the command line, which is more consistent with other config warnings
-			// however it takes OSCam a long time (>4 seconds) to reach this part of the program, so the warnings are
+			// however it takes NCam a long time (>4 seconds) to reach this part of the program, so the warnings are
 			// reaching tty rather late which leads to confusion. So send the warnings to log file instead
 			cs_log_dbg(D_DVBAPI, "WARN: line containing %s in %s not recognized, ignoring...", token, cs_prio);
 			continue;
